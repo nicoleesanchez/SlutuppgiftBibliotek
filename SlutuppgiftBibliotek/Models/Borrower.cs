@@ -14,7 +14,7 @@ namespace SlutuppgiftBibliotek.Models
         public string LibraryCard { get; set; }
         public int LibraryCardPin { get; set; }
         public ICollection<Book> Books { get; set; } = new List<Book>();
-
+        public ICollection<BookLoan> BookLoans { get; set; } = new List<BookLoan>();
         public Borrower() 
         {
         

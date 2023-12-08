@@ -11,13 +11,23 @@ namespace SlutuppgiftBibliotek.Data
     {
         public void Seed()
         {
-            Context context = new Context();
+            Context context = new();
             Author author1 = new();
             author1.FirstName = "Astrid";
             author1.LastName = "Lindgren";
             Author author2 = new();
             author2.FirstName = "John";
             author2.LastName = "Smith";
+            Author author3 = new();
+            author3.FirstName = "J.K.";
+            author3.LastName = "Rowling";
+            Author author4 = new();
+            author4.FirstName = "George";
+            author4.LastName = "Orwell";
+            Author author5 = new();
+            author5.FirstName = "Jane";
+            author5.LastName = "Austen";
+
 
             Borrower borrower1 = new Borrower
             {
@@ -31,16 +41,18 @@ namespace SlutuppgiftBibliotek.Data
                 FirstName = "Mike",
                 LastName = "Yousif",
                 LibraryCard = "MN008",
-                LibraryCardPin = 5678
+                LibraryCardPin = 5678,
             };
+
             Book book1 = new Book
             {
                 Title = "Pippi",
                 ISBN = 123456789,
                 IsAvailable = false,
+                Rating = "Good Book"
 
             };
-            context.Authors.AddRange(new List<Author>() { author1, author2 });
+            context.Authors.AddRange(new List<Author>() { author1, author2, author3, author4, author5 });
             context.Borrowers.AddRange(new List<Borrower>() {  borrower1, borrower2 });
             context.Books.AddRange(new List<Book>() { book1 });
             context.SaveChanges();

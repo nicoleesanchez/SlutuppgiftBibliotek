@@ -22,6 +22,21 @@ namespace SlutuppgiftBibliotek.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AuthorBook", b =>
+                {
+                    b.Property<int>("AuthorsAuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BooksId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AuthorsAuthorId", "BooksId");
+
+                    b.HasIndex("BooksId");
+
+                    b.ToTable("AuthorBook");
+                });
+
             modelBuilder.Entity("BookBorrower", b =>
                 {
                     b.Property<int>("BooksId")
@@ -39,14 +54,11 @@ namespace SlutuppgiftBibliotek.Migrations
 
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.Author", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("AuthorId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BookId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuthorId"));
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -56,9 +68,7 @@ namespace SlutuppgiftBibliotek.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
+                    b.HasKey("AuthorId");
 
                     b.ToTable("Authors");
                 });
@@ -71,11 +81,14 @@ namespace SlutuppgiftBibliotek.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Available")
-                        .HasColumnType("bit");
+                    b.Property<int?>("BookLoanId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ISBN")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Rating")
                         .IsRequired()
@@ -87,19 +100,18 @@ namespace SlutuppgiftBibliotek.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BookLoanId");
+
                     b.ToTable("Books");
                 });
 
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.BookLoan", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("BookLoanId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookLoanId"));
 
                     b.Property<int>("BorrowerId")
                         .HasColumnType("int");
@@ -107,9 +119,7 @@ namespace SlutuppgiftBibliotek.Migrations
                     b.Property<DateTime?>("ReturnDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
+                    b.HasKey("BookLoanId");
 
                     b.HasIndex("BorrowerId");
 
@@ -123,9 +133,6 @@ namespace SlutuppgiftBibliotek.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BookLoanId")
-                        .HasColumnType("int");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -144,9 +151,22 @@ namespace SlutuppgiftBibliotek.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookLoanId");
-
                     b.ToTable("Borrowers");
+                });
+
+            modelBuilder.Entity("AuthorBook", b =>
+                {
+                    b.HasOne("SlutuppgiftBibliotek.Models.Author", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorsAuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlutuppgiftBibliotek.Models.Book", null)
+                        .WithMany()
+                        .HasForeignKey("BooksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookBorrower", b =>
@@ -164,47 +184,32 @@ namespace SlutuppgiftBibliotek.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SlutuppgiftBibliotek.Models.Author", b =>
+            modelBuilder.Entity("SlutuppgiftBibliotek.Models.Book", b =>
                 {
-                    b.HasOne("SlutuppgiftBibliotek.Models.Book", null)
-                        .WithMany("Authors")
-                        .HasForeignKey("BookId");
+                    b.HasOne("SlutuppgiftBibliotek.Models.BookLoan", null)
+                        .WithMany("Books")
+                        .HasForeignKey("BookLoanId");
                 });
 
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.BookLoan", b =>
                 {
-                    b.HasOne("SlutuppgiftBibliotek.Models.Book", "Book")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SlutuppgiftBibliotek.Models.Borrower", "Borrower")
-                        .WithMany()
+                    b.HasOne("SlutuppgiftBibliotek.Models.Borrower", "Borrowers")
+                        .WithMany("BookLoans")
                         .HasForeignKey("BorrowerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Book");
-
-                    b.Navigation("Borrower");
-                });
-
-            modelBuilder.Entity("SlutuppgiftBibliotek.Models.Borrower", b =>
-                {
-                    b.HasOne("SlutuppgiftBibliotek.Models.BookLoan", null)
-                        .WithMany("Borrowers")
-                        .HasForeignKey("BookLoanId");
-                });
-
-            modelBuilder.Entity("SlutuppgiftBibliotek.Models.Book", b =>
-                {
-                    b.Navigation("Authors");
+                    b.Navigation("Borrowers");
                 });
 
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.BookLoan", b =>
                 {
-                    b.Navigation("Borrowers");
+                    b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("SlutuppgiftBibliotek.Models.Borrower", b =>
+                {
+                    b.Navigation("BookLoans");
                 });
 #pragma warning restore 612, 618
         }
