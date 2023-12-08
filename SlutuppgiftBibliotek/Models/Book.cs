@@ -8,12 +8,13 @@ namespace SlutuppgiftBibliotek.Models
 {
     internal class Book
     {
-        public int Id { get; set; }
+        public int BookId { get; set; }
         public string Title { get; set; }
         public int ISBN { get; set; }
+        public int PublishedYear { get; set; }
         public string Rating { get; set; }
-        public bool IsAvailable { get; set; } 
-        public ICollection<Borrower> Borrowers { get; set; } = new List<Borrower>();
+        public bool IsAvailable { get; set; } = true;
+        public Borrower? Borrower { get; set; }
         public ICollection<Author> Authors { get; set; } = new List<Author>();
         public Book() 
         {

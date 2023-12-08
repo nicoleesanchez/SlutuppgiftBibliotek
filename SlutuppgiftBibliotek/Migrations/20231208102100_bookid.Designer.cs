@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SlutuppgiftBibliotek.Data;
 
@@ -11,9 +12,11 @@ using SlutuppgiftBibliotek.Data;
 namespace SlutuppgiftBibliotek.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20231208102100_bookid")]
+    partial class bookid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,6 +38,21 @@ namespace SlutuppgiftBibliotek.Migrations
                     b.HasIndex("BooksBookId");
 
                     b.ToTable("AuthorBook");
+                });
+
+            modelBuilder.Entity("BookBorrower", b =>
+                {
+                    b.Property<int>("BooksBookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BorrowersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BooksBookId", "BorrowersId");
+
+                    b.HasIndex("BorrowersId");
+
+                    b.ToTable("BookBorrower");
                 });
 
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.Author", b =>
@@ -69,17 +87,11 @@ namespace SlutuppgiftBibliotek.Migrations
                     b.Property<int?>("BookLoanId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("BorrowerId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ISBN")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
-
-                    b.Property<int>("PublishedYear")
-                        .HasColumnType("int");
 
                     b.Property<string>("Rating")
                         .IsRequired()
@@ -92,8 +104,6 @@ namespace SlutuppgiftBibliotek.Migrations
                     b.HasKey("BookId");
 
                     b.HasIndex("BookLoanId");
-
-                    b.HasIndex("BorrowerId");
 
                     b.ToTable("Books");
                 });
@@ -109,7 +119,7 @@ namespace SlutuppgiftBibliotek.Migrations
                     b.Property<int>("BorrowerId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("LoanDate")
+                    b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("ReturnDate")
@@ -165,17 +175,26 @@ namespace SlutuppgiftBibliotek.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BookBorrower", b =>
+                {
+                    b.HasOne("SlutuppgiftBibliotek.Models.Book", null)
+                        .WithMany()
+                        .HasForeignKey("BooksBookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SlutuppgiftBibliotek.Models.Borrower", null)
+                        .WithMany()
+                        .HasForeignKey("BorrowersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.Book", b =>
                 {
                     b.HasOne("SlutuppgiftBibliotek.Models.BookLoan", null)
                         .WithMany("Books")
                         .HasForeignKey("BookLoanId");
-
-                    b.HasOne("SlutuppgiftBibliotek.Models.Borrower", "Borrower")
-                        .WithMany("Books")
-                        .HasForeignKey("BorrowerId");
-
-                    b.Navigation("Borrower");
                 });
 
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.BookLoan", b =>
@@ -197,8 +216,6 @@ namespace SlutuppgiftBibliotek.Migrations
             modelBuilder.Entity("SlutuppgiftBibliotek.Models.Borrower", b =>
                 {
                     b.Navigation("BookLoans");
-
-                    b.Navigation("Books");
                 });
 #pragma warning restore 612, 618
         }
